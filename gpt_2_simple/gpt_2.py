@@ -232,8 +232,10 @@ def finetune(sess,
         
         # wrap optimizer with kungfu optimizer
         opt_reset_func = opt.reset
+        opt_apply_gradients_func = opt.apply_gradients
         opt = SynchronousSGDOptimizer(opt)
         opt.reset = opt_reset_func
+        opt.apply_gradients = opt_apply_gradients_func
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
