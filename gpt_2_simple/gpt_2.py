@@ -411,10 +411,10 @@ def load_gpt2(sess,
     saver = tf.compat.v1.train.Saver(allow_empty=True)
     sess.run(tf.compat.v1.global_variables_initializer())
 
-    # KungFu Step 2: ensure distributed workers start with consistent states
-    # MAYBE UNNCESSARY
-    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
-    sess.run(BroadcastGlobalVariablesOp())
+    # # KungFu Step 2: ensure distributed workers start with consistent states
+    # # MAYBE UNNCESSARY
+    # from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    # sess.run(BroadcastGlobalVariablesOp())
 
     if model_name:
         print('Loading pretrained model', ckpt)
