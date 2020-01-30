@@ -193,7 +193,9 @@ def finetune(sess,
     gpus = []
 
     if multi_gpu:
+        print('Looking for gpus...')
         gpus = get_available_gpus()
+        print('Found gpus: {}'.format(gpus))
 
     output = model.model(hparams=hparams, X=context, gpus=gpus)
     loss = tf.reduce_mean(
