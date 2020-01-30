@@ -6,7 +6,7 @@ import tensorflow as tf
 import time
 
 
-class AccumulatingOptimizer(object):
+class AccumulatingOptimizer(tf.compat.v1.train.Optimizer):
     def __init__(self, opt, var_list):
         self.opt = opt
         self.var_list = var_list
