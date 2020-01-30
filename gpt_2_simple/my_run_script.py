@@ -4,7 +4,7 @@ import requests
 
 model_name = "124M"
 if not os.path.isdir(os.path.join("models", model_name)):
-	print(f"Downloading {model_name} model...")
+	print("Downloading {} model...".format(model_name))
 	gpt2.download_gpt2(model_name=model_name)   # model is saved into current directory under /models/124M/
 
 
