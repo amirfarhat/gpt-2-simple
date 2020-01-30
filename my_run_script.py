@@ -9,10 +9,25 @@ import click
     "--model",
     type=str,
     required=True,
-    help="pickle filename generated from the tcpdump"
+    help="name of the gpt2 model to use from [ 124M, 355M, 774M, 1558M ]"
+)
+@click.option(
+    "--steps",
+    type=int,
+    required=True,
+    help="number of steps to run training for"
+)
+@click.option(
+    "--batch-size",
+    type=int,
+		default=1,
+    required=False,
+    help="size of the batch of data to train with"
 )
 def main(
-	model
+	model,
+	steps,
+	batch_size
 ):
 	model_name = model
 	if not os.path.isdir(os.path.join("models", model_name)):
@@ -33,7 +48,10 @@ def main(
 	gpt2.finetune(sess,
 								file_name,
 								model_name=model_name,
-								steps=1000)   # steps is max number of training steps
+								steps=steps, # steps is max number of training steps
+								batch_size=batch_size,
+								multi_gpu=True
+	)   
 
 	gpt2.generate(sess)
 
