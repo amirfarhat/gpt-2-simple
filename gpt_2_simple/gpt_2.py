@@ -15,6 +15,8 @@ from datetime import datetime
 import csv
 import argparse
 
+from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+
 # if in Google Colaboratory
 try:
     from google.colab import drive
@@ -218,9 +220,8 @@ def finetune(sess,
     elif optimizer == 'sgd':
         opt = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate)
 
-    # # wrap kungfu around the optimizer
-    # from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
-    # opt = SynchronousSGDOptimizer(opt)
+    # wrap optimizer with kungfu optimizer
+    opt = SynchronousSGDOptimizer(opt)
 
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
@@ -228,11 +229,9 @@ def finetune(sess,
         opt = AccumulatingOptimizer(
             opt=opt,
             var_list=train_vars)
-       
-        # wrap kungfu around the optimizer
-        # WARN: potentially unneccessary in this specific place
-        from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
-        opt = SynchronousSGDOptimizer(opt)
+        
+        print(type(opt))
+        # opt = SynchronousSGDOptimizer(opt)
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
