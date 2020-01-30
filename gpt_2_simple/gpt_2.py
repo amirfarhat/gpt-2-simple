@@ -216,12 +216,22 @@ def finetune(sess,
     elif optimizer == 'sgd':
         opt = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate)
 
+    # wrap kungfu around the optimizer
+    from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+    opt = SynchronousSGDOptimizer(opt)
+
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
             exit("Memory saving gradients are not implemented for gradient accumulation yet.")
         opt = AccumulatingOptimizer(
             opt=opt,
             var_list=train_vars)
+       
+        # wrap kungfu around the optimizer
+        # WARN: potentially unneccessary in this specific place
+        from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+        opt = SynchronousSGDOptimizer(opt)
+
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
         opt_apply = opt.apply_gradients()
@@ -241,6 +251,10 @@ def finetune(sess,
         var_list=all_vars,
         max_to_keep=max_checkpoints)
     sess.run(tf.compat.v1.global_variables_initializer())
+
+    # KungFu Step 2: ensure distributed workers start with consistent states
+    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    sess.run(BroadcastGlobalVariablesOp())
 
     if restore_from == 'latest':
         ckpt = tf.train.latest_checkpoint(checkpoint_path)
@@ -391,6 +405,11 @@ def load_gpt2(sess,
     ckpt = tf.train.latest_checkpoint(checkpoint_path)
     saver = tf.compat.v1.train.Saver(allow_empty=True)
     sess.run(tf.compat.v1.global_variables_initializer())
+
+    # KungFu Step 2: ensure distributed workers start with consistent states
+    # MAYBE UNNCESSARY
+    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    sess.run(BroadcastGlobalVariablesOp())
 
     if model_name:
         print('Loading pretrained model', ckpt)
