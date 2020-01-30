@@ -124,6 +124,8 @@ def reset_session(sess, threads=-1, server=None):
 
 def get_available_gpus():
     local_device_protos = device_lib.list_local_devices()
+    for x in local_device_protos:
+        print(x.name)
     return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 def finetune(sess,
@@ -257,9 +259,9 @@ def finetune(sess,
         max_to_keep=max_checkpoints)
     sess.run(tf.compat.v1.global_variables_initializer())
 
-    # KungFu Step 2: ensure distributed workers start with consistent states
-    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
-    sess.run(BroadcastGlobalVariablesOp())
+    # # KungFu Step 2: ensure distributed workers start with consistent states
+    # from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    # sess.run(BroadcastGlobalVariablesOp())
 
     if restore_from == 'latest':
         ckpt = tf.train.latest_checkpoint(checkpoint_path)
@@ -411,10 +413,10 @@ def load_gpt2(sess,
     saver = tf.compat.v1.train.Saver(allow_empty=True)
     sess.run(tf.compat.v1.global_variables_initializer())
 
-    # # KungFu Step 2: ensure distributed workers start with consistent states
-    # # MAYBE UNNCESSARY
-    # from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
-    # sess.run(BroadcastGlobalVariablesOp())
+    # KungFu Step 2: ensure distributed workers start with consistent states
+    # MAYBE UNNCESSARY
+    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    sess.run(BroadcastGlobalVariablesOp())
 
     if model_name:
         print('Loading pretrained model', ckpt)
