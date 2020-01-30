@@ -225,16 +225,14 @@ def finetune(sess,
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
             exit("Memory saving gradients are not implemented for gradient accumulation yet.")
-        
-        # wrap kungfu around the optimizer
-        # WARN: potentially unneccessary in this specific place
-        from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
-        opt = SynchronousSGDOptimizer(opt)
-        
         opt = AccumulatingOptimizer(
             opt=opt,
             var_list=train_vars)
        
+        # wrap kungfu around the optimizer
+        # WARN: potentially unneccessary in this specific place
+        from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+        opt = SynchronousSGDOptimizer(opt)
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
