@@ -221,7 +221,7 @@ def finetune(sess,
         opt = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate)
 
     # wrap optimizer with kungfu optimizer
-    opt = SynchronousSGDOptimizer(opt)
+    # opt = SynchronousSGDOptimizer(opt)
 
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
@@ -230,8 +230,10 @@ def finetune(sess,
             opt=opt,
             var_list=train_vars)
         
-        print(type(opt))
-        # opt = SynchronousSGDOptimizer(opt)
+        # wrap optimizer with kungfu optimizer
+        opt_reset_func = opt.reset
+        opt = SynchronousSGDOptimizer(opt)
+        opt.reset = opt_reset_func
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
