@@ -229,10 +229,10 @@ def finetune(sess,
             opt=opt,
             var_list=train_vars)
        
-        # wrap kungfu around the optimizer
-        # WARN: potentially unneccessary in this specific place
-        from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
-        opt = SynchronousSGDOptimizer(opt)
+        # # wrap kungfu around the optimizer
+        # # WARN: potentially unneccessary in this specific place
+        # from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+        # opt = SynchronousSGDOptimizer(opt)
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
