@@ -50,7 +50,6 @@ def main(
 								model_name=model_name,
 								steps=steps, # steps is max number of training steps
 								batch_size=batch_size,
-								multi_gpu=True
 	)   
 
 	gpt2.generate(sess)
