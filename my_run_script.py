@@ -52,7 +52,7 @@ def main(
 								batch_size=batch_size,
 	)   
 
-	gpt2.generate(sess)
+	# gpt2.generate(sess)
 
 if __name__ == "__main__":
 		main()
