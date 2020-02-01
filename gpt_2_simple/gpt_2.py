@@ -351,6 +351,15 @@ def finetune(sess,
             if (counter - 1) % sample_every == 0 and counter > 1:
                 generate_samples()
 
+            if counter % print_every == 0:
+                print(
+                    'Unix epoch time before iter #{iteration}: {time}'
+                    .format(
+                        iteration=counter,
+                        time=time.time()
+                    )
+                )
+
             if accumulate_gradients > 1:
                 sess.run(opt_reset)
                 for _ in range(accumulate_gradients):
@@ -375,6 +384,14 @@ def finetune(sess,
                         time=time.time() - start_time,
                         loss=v_loss,
                         avg=avg_loss[0] / avg_loss[1]))
+
+                print(
+                    'Unix epoch time after iter #{iteration}: {time}'
+                    .format(
+                        iteration=counter,
+                        time=time.time()
+                    )
+                )
 
             counter += 1
     except KeyboardInterrupt:
