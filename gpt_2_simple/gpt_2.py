@@ -231,7 +231,7 @@ def finetune(sess,
     # opt = SynchronousSGDOptimizer(opt)
     # wrap optimizer with hvd optimizer
     opt = hvd.DistributedOptimizer(opt)
-    hooks = [hvd.BroadcastGlobalVariablesHook(0)]
+    # hooks = [hvd.BroadcastGlobalVariablesHook(0)]
 
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
@@ -263,8 +263,8 @@ def finetune(sess,
     sess.run(tf.compat.v1.global_variables_initializer())
 
     # KungFu Step 2: ensure distributed workers start with consistent states
-    from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
-    sess.run(BroadcastGlobalVariablesOp())
+    # from kungfu.tensorflow.initializer import BroadcastGlobalVariablesOp
+    # sess.run(BroadcastGlobalVariablesOp())
 
     if restore_from == 'latest':
         ckpt = tf.train.latest_checkpoint(checkpoint_path)
