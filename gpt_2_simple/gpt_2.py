@@ -111,10 +111,10 @@ def start_tf_sess(threads=-1, server=None):
 
     if server is not None:
         # hvd
-        return tf.compat.v1.Session(target=server.target, config=config, hooks = [hvd.BroadcastGlobalVariablesHook(0)])
+        return tf.compat.v1.Session(target=server.target, config=config)
     
     # hvd
-    return tf.compat.v1.Session(config=config, hooks = [hvd.BroadcastGlobalVariablesHook(0)])
+    return tf.compat.v1.Session(config=config)
 
 
 def reset_session(sess, threads=-1, server=None):
