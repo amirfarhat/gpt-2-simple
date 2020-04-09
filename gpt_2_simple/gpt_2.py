@@ -15,7 +15,10 @@ from datetime import datetime
 import csv
 import argparse
 
-from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+# from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
+import horovod.tensorflow as hvd
+hvd.init()
+global hooks
 
 # if in Google Colaboratory
 try:
@@ -101,15 +104,18 @@ def start_tf_sess(threads=-1, server=None):
     """
     config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
+    config.gpu_options.visible_device_list = str(hvd.local_rank())
     config.graph_options.rewrite_options.layout_optimizer = rewriter_config_pb2.RewriterConfig.OFF
     if threads > 0:
         config.intra_op_parallelism_threads = threads
         config.inter_op_parallelism_threads = threads
 
     if server is not None:
-        return tf.compat.v1.Session(target=server.target, config=config)
+        # hvd
+        return tf.compat.v1.Session(target=server.target, config=config, hooks = [hvd.BroadcastGlobalVariablesHook(0)])
     
-    return tf.compat.v1.Session(config=config)
+    # hvd
+    return tf.compat.v1.Session(config=config, hooks = [hvd.BroadcastGlobalVariablesHook(0)])
 
 
 def reset_session(sess, threads=-1, server=None):
@@ -218,12 +224,15 @@ def finetune(sess,
     train_vars = [v for v in all_vars if '/h' in v.name] if only_train_transformer_layers else all_vars
 
     if optimizer == 'adam':
-        opt = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
+        opt = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate*0.01*hvd.size())
     elif optimizer == 'sgd':
-        opt = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate)
+        opt = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=learning_rate*0.01*hvd.size())
 
-    # wrap optimizer with kungfu optimizer
-    opt = SynchronousSGDOptimizer(opt)
+    # # wrap optimizer with kungfu optimizer
+    # opt = SynchronousSGDOptimizer(opt)
+    # wrap optimizer with hvd optimizer
+    opt = hvd.DistributedOptimizer(opt)
+    hooks = [hvd.BroadcastGlobalVariablesHook(0)]
 
     if accumulate_gradients > 1:
         if use_memory_saving_gradients:
