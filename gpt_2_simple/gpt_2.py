@@ -18,7 +18,6 @@ import argparse
 # from kungfu.tensorflow.optimizers import SynchronousSGDOptimizer
 import horovod.tensorflow as hvd
 hvd.init()
-global hooks
 
 # if in Google Colaboratory
 try:
@@ -240,13 +239,6 @@ def finetune(sess,
         opt = AccumulatingOptimizer(
             opt=opt,
             var_list=train_vars)
-        
-        # # wrap optimizer with kungfu optimizer
-        # opt_reset_func = opt.reset
-        # opt_apply_gradients_func = opt.apply_gradients
-        # opt = SynchronousSGDOptimizer(opt)
-        # opt.reset = opt_reset_func
-        # opt.apply_gradients = opt_apply_gradients_func
 
         opt_reset = opt.reset()
         opt_compute = opt.compute_gradients(loss)
@@ -262,6 +254,8 @@ def finetune(sess,
         summary_loss = tf.compat.v1.summary.scalar('loss', loss)
 
     summary_log = tf.compat.v1.summary.FileWriter(checkpoint_path)
+
+    bcast = hvd.broadcast_global_variables(0)
 
     saver = tf.compat.v1.train.Saver(
         var_list=all_vars,
@@ -285,6 +279,8 @@ def finetune(sess,
         ckpt = tf.train.latest_checkpoint(restore_from)
     print('Loading checkpoint', ckpt)
     saver.restore(sess, ckpt)
+
+    bcast.run()
 
     print('Loading dataset...')
     chunks = load_dataset(enc, dataset, combine)
